@@ -18,7 +18,7 @@ export default function Stand({ scores, onEdit, editable }: { scores: Scores; on
             <td className="num"><b>{fmtPts(r.pts) || '0'}</b></td><td className="num">{r.diff > 0 ? '+' : ''}{r.diff}</td><td className="num">{r.done}/{r.total}</td></tr>
         ))}</tbody>
       </table></div>
-      <p className="note">Gewonnen partij = 1 punt, gelijk = ½. Alleen afgeronde partijen tellen mee; bij gelijke punten beslist het saldo gewonnen holes. Flight 18 speelt met drie teams: daar tellen alle drie de onderlinge partijen, maar flight 18 telt niet mee voor de clubscore Heelsum – Anderstein.</p>
+      <p className="note">Gewonnen partij = 1 punt, gelijk = ½. Alleen afgeronde partijen tellen mee; bij gelijke punten beslist het saldo gewonnen holes.</p>
       <h2>Per flight</h2>
       {FLIGHTS.map(fl => {
         const res = fl.matches.map((m: any) => ({ m, r: evalMatch(scores, fl, m) }));
