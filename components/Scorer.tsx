@@ -79,9 +79,10 @@ export default function Scorer({ nr, pin }: { nr: number; pin: string }) {
                 const r = evalMatch(scores, fl, m);
                 const recv = m.recv ? (m.recv === 'a' ? m.a.label : m.b.label) : 'niemand';
                 const here = m.recv && m.map[h] ? `${recv} krijgt hier ${m.map[h]} slag${m.map[h] > 1 ? 'en' : ''}` : '';
+                const strokes = m.n === 0 ? 'geen slagen' : `totaal ${m.n} slag${m.n === 1 ? '' : 'en'} voor ${recv}`;
                 const title = m.kind === 'single'
-                  ? `${m.pos}e speler${fl.teams.length > 2 ? ` – team ${m.teamA.letter} tegen ${m.teamB.letter}` : ''} – ${m.n} slag${m.n === 1 ? '' : 'en'} voor ${recv}`
-                  : `Team ${m.teamA.letter} tegen ${m.teamB.letter} – ${m.n} slag${m.n === 1 ? '' : 'en'} voor ${recv}`;
+                  ? `${m.pos}e speler${fl.teams.length > 2 ? ` – team ${m.teamA.letter} tegen ${m.teamB.letter}` : ''} – ${strokes}`
+                  : `Team ${m.teamA.letter} tegen ${m.teamB.letter} – ${strokes}`;
                 return (
                   <div className="match" key={i}><div className="t">{title}</div><div className={`st ${r.cls}`}>{r.text}</div>
                     <div className="vs">{m.a.label} – {m.b.label}</div>{here && <div className="here">{here}</div>}</div>
