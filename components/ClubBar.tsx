@@ -13,7 +13,7 @@ export default function ClubBar({ scores }: { scores: Scores }) {
           <b>{f(c.proj.H)}<i>–</i>{f(c.proj.A)}</b>
           <small>{c.started ? `verwacht · afgerond ${f(c.done.H)}–${f(c.done.A)} · ${c.finished}/${c.total} klaar` : `nog geen partijen gestart · ${c.total} partijen`}</small>
         </div>
-        <div className={`cb-club r${lead === 'A' ? ' lead' : ''}`}><span>{CLUBS.A.name}</span><img src={CLUBS.A.logo} alt="" /></div>
+        <div className={`cb-club${lead === 'A' ? ' lead' : ''}`}><img src={CLUBS.A.logo} alt="" /><span>{CLUBS.A.name}</span></div>
       </div>
     </div>
   );
