@@ -127,7 +127,7 @@ export function csv(S: Scores) {
   const lines = [['Flight', 'Start', 'Partij', 'Kant A', 'Kant B', 'Slagen', 'Ontvanger', 'Stand', 'Punten A', 'Punten B'].map(q).join(';')];
   FLIGHTS.forEach(fl => fl.matches.forEach((m: any) => {
     const r = evalMatch(S, fl, m);
-    lines.push([fl.nr, fl.start, m.kind === 'single' ? `Voor 9 ${m.pos}e` : 'Achter 9 team', m.a.full || m.a.team.players.map((p: any) => p.name).join(' & '), m.b.full || m.b.team.players.map((p: any) => p.name).join(' & '),
+    lines.push([fl.nr, fl.start, m.kind === 'single' ? `1e 9 ${m.pos}e` : '2e 9 team', m.a.full || m.a.team.players.map((p: any) => p.name).join(' & '), m.b.full || m.b.team.players.map((p: any) => p.name).join(' & '),
       m.n, m.recv ? (m.recv === 'a' ? m.a.label : m.b.label) : '-', r.text, r.pa ?? '', r.pb ?? ''].map(q).join(';'));
   }));
   lines.push(''); lines.push(['Positie', 'Team', 'Flight', 'Punten', 'Saldo'].map(q).join(';'));

@@ -37,13 +37,13 @@ export default function Scorer({ nr, pin }: { nr: number; pin: string }) {
             <div className="stripwrap">
               {(['V', 'A'] as const).map((part, pi) => (
                 <div key={part}>
-                  <div className="lbl"><span>{part === 'V' ? 'Voor 9 – singles' : 'Achter 9 – teambal'}</span>
+                  <div className="lbl"><span>{part === 'V' ? '1e 9 – singles' : '2e 9 – teambal'}</span>
                     <span>holes {(pi ? fl.back : fl.front)[0]}–{(pi ? fl.back : fl.front)[8]}</span></div>
                   <div className="strip">
                     {Array.from({ length: 9 }, (_, k) => {
                       const i = pi * 9 + k, hh = fl.order[i];
                       return <button key={i} className={holeState(scores, fl, i)} aria-current={i === cur ? 'true' : undefined}
-                        aria-label={`Hole ${hh}, ${k + 1}e hole van de ${part === 'V' ? 'voor' : 'achter'} 9`} onClick={() => setIdx(i)}>{hh}</button>;
+                        aria-label={`Hole ${hh}, ${k + 1}e hole van de ${part === 'V' ? '1e' : '2e'} 9`} onClick={() => setIdx(i)}>{hh}</button>;
                     })}
                   </div>
                 </div>
@@ -52,9 +52,9 @@ export default function Scorer({ nr, pin }: { nr: number; pin: string }) {
 
             <div className="hole">
               <div className="holehead"><div className="holenum"><b>{h}</b><span>{holeName(h)}</span></div>
-                <div className="holemeta"><div className="fmt">{front ? 'Voor 9 – singles' : 'Achter 9 – teambal'}</div>
+                <div className="holemeta"><div className="fmt">{front ? '1e 9 – singles' : '2e 9 – teambal'}</div>
                   <div className="facts"><span>Par <strong>{H.par}</strong></span><span>SI <strong>{H.si}</strong></span></div>
-                  <div className="seq">{(cur % 9) + 1}e hole van de {front ? 'voor' : 'achter'} 9</div></div></div>
+                  <div className="seq">{(cur % 9) + 1}e hole van de {front ? '1e' : '2e'} 9</div></div></div>
               <div className="rows">
                 {entries.map((e: any) => {
                   const v = val(scores, fl, e.bucket, e.id, h), s = strokesFor(fl, e, cur);
