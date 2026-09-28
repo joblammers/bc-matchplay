@@ -144,3 +144,31 @@ td.rank{font-weight:700;color:var(--green);width:28px}
 .cb-score b i{font-style:normal;color:var(--muted);margin:0 6px;font-weight:600}
 .cb-score small{display:block;font-size:10.5px;color:var(--muted);margin-top:2px}
 @media (max-width:420px){.cb-club span{font-size:11.5px}.cb-club img{width:34px;height:34px}.cb-score b{font-size:22px}}
+
+/* QR-printpagina */
+.qrsheet{background:#fff;color:#14231D;min-height:100vh}
+.qrbar{padding:14px 16px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;font-size:14px;border-bottom:1px solid #D5E2DA}
+.qrbar .btn{margin-left:auto}
+.qrgrid{display:grid;grid-template-columns:1fr 1fr;gap:6mm;padding:8mm;max-width:210mm;margin:0 auto}
+.qrc{border:1.5px dashed #9DB0A7;border-radius:4mm;padding:5mm;height:88mm;display:flex;flex-direction:column;break-inside:avoid;page-break-inside:avoid}
+.qrc-top{display:flex;align-items:center;gap:3mm;border-bottom:2px solid #027C55;padding-bottom:2.5mm}
+.qrc-top img{width:12mm;height:12mm;object-fit:contain}
+.qrc-fn{font-size:22pt;font-weight:800;color:#027C55;line-height:1}
+.qrc-st{font-size:9.5pt;color:#5B6D65;margin-top:1mm}
+.qrc-body{flex:1;display:flex;gap:4mm;align-items:center;padding-top:3mm;min-height:0}
+.qrc-qr{width:40mm;flex:none}
+.qrc-qr svg{width:40mm;height:40mm;display:block}
+.qrc-teams{flex:1;min-width:0;font-size:9pt;line-height:1.3;display:flex;flex-direction:column;gap:2mm}
+.qrc-team{display:flex;gap:2mm;align-items:flex-start}
+.qrc-team img{width:7mm;height:7mm;border-radius:50%;object-fit:contain;flex:none}
+.qrc-team small{display:block;font-size:7.5pt;font-weight:700;color:#5B6D65;text-transform:uppercase;letter-spacing:.04em}
+.qrc-pin{margin-top:1mm;font-size:9pt}
+.qrc-pin b{font-size:14pt;letter-spacing:.15em}
+.qrc-foot{font-size:7pt;color:#5B6D65;border-top:1px solid #D5E2DA;padding-top:1.5mm;word-break:break-all}
+@page{size:A4 portrait;margin:0}
+@media print{
+  .noprint{display:none!important}
+  body{background:#fff}
+  .qrgrid{padding:10mm 8mm}
+  .qrc:nth-child(6n){break-after:page;page-break-after:always}
+}

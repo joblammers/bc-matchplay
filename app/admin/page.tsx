@@ -27,7 +27,7 @@ export default async function Admin({ searchParams }: { searchParams: Promise<{ 
           })}</tbody>
         </table></div>
         <p className="note">Stand (alleen lezen): <a href={`${base}/stand`} target="_blank">{base}/stand</a></p>
-        <div className="tools"><ResetButton k={key!} /></div>
+        <div className="tools"><a className="btn" href={`/admin/qr?key=${encodeURIComponent(key!)}`}>QR-codes afdrukken (A4)</a><ResetButton k={key!} /></div>
       </main>
     </>
   );
