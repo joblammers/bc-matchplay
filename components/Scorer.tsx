@@ -37,7 +37,7 @@ export default function Scorer({ nr, pin }: { nr: number; pin: string }) {
             <div className="stripwrap">
               {(['V', 'A'] as const).map((part, pi) => (
                 <div key={part}>
-                  <div className="lbl"><span>{part === 'V' ? '1e 9 – singles' : '2e 9 – teambal'}</span>
+                  <div className="lbl"><span>{part === 'V' ? '1e 9 – Singles' : '2e 9 – Greensome'}</span>
                     <span>holes {(pi ? fl.back : fl.front)[0]}–{(pi ? fl.back : fl.front)[8]}</span></div>
                   <div className="strip">
                     {Array.from({ length: 9 }, (_, k) => {
@@ -52,7 +52,7 @@ export default function Scorer({ nr, pin }: { nr: number; pin: string }) {
 
             <div className="hole">
               <div className="holehead"><div className="holenum"><b>{h}</b><span>{holeName(h)}</span></div>
-                <div className="holemeta"><div className="fmt">{front ? '1e 9 – singles' : '2e 9 – teambal'}</div>
+                <div className="holemeta"><div className="fmt">{front ? '1e 9 – Singles' : '2e 9 – Greensome'}</div>
                   <div className="facts"><span>Par <strong>{H.par}</strong></span><span>SI <strong>{H.si}</strong></span></div>
                   <div className="seq">{(cur % 9) + 1}e hole van de {front ? '1e' : '2e'} 9</div></div></div>
               <div className="rows">

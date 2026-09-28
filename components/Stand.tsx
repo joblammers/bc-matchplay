@@ -29,7 +29,7 @@ export default function Stand({ scores, onEdit, editable }: { scores: Scores; on
               {onEdit && editable === fl.nr && <button onClick={() => onEdit(fl.nr)}>Scores invoeren</button>}</div>
             {res.map(({ m, r }: any, i: number) => (
               <div className="ml" key={i}>
-                <span className="k">{m.kind === 'single' ? `1e 9 · ${m.pos}e` : '2e 9'}{fl.teams.length > 2 ? ` ${m.teamA.letter}–${m.teamB.letter}` : ''}</span>
+                <span className="k">{m.kind === 'single' ? `1e 9 · Singles ${m.pos}e` : '2e 9 · Greensome'}{fl.teams.length > 2 ? ` ${m.teamA.letter}–${m.teamB.letter}` : ''}</span>
                 <span>{m.a.label} – {m.b.label}</span>
                 <span className={`r ${r.cls}`} style={{ color: r.cls === 'lead-a' ? 'var(--green)' : r.cls === 'lead-b' ? 'var(--purple)' : 'inherit' }}>{r.text}</span>
               </div>
