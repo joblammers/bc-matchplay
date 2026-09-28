@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import { HOLE, evalMatch, firstOpen, flightByNr, holeEntries, holeName, holeState, strokesFor, val } from '@/lib/model';
 import { useScores } from '@/lib/useScores';
+import ClubBar from './ClubBar';
 import Stand from './Stand';
 
 export default function Scorer({ nr, pin }: { nr: number; pin: string }) {
@@ -20,6 +21,7 @@ export default function Scorer({ nr, pin }: { nr: number; pin: string }) {
 
   return (
     <>
+      <ClubBar scores={scores} />
       <div className="tabbar"><nav className="tabs" role="tablist">
         <button role="tab" aria-selected={tab === 'in'} onClick={() => showTab('in')}>Scores invoeren</button>
         <button role="tab" aria-selected={tab === 'st'} onClick={() => showTab('st')}>Stand</button>

@@ -26,7 +26,7 @@ const LETTER = 'ABC';
 DATA.flights.forEach((fl: any) => {
   fl.order = playOrder(fl);
   fl.front = fl.order.slice(0, 9); fl.back = fl.order.slice(9);
-  fl.teams.forEach((t: any, i: number) => { t.letter = LETTER[i]; t.label = t.players.map((p: any) => first(p.name)).join(' & '); t.sum = t.players.reduce((a: number, p: any) => a + p.phcp, 0); });
+  fl.teams.forEach((t: any, i: number) => { t.letter = t.club || LETTER[i]; t.label = t.players.map((p: any) => first(p.name)).join(' & '); t.sum = t.players.reduce((a: number, p: any) => a + p.phcp, 0); });
   fl.matches = [];
   pairs(fl.teams.length).forEach(([a, b]) => {
     const A = fl.teams[a], B = fl.teams[b];
@@ -133,4 +133,33 @@ export function csv(S: Scores) {
   lines.push(''); lines.push(['Positie', 'Team', 'Flight', 'Punten', 'Saldo'].map(q).join(';'));
   standings(S).forEach((r, i) => lines.push([i + 1, r.t.players.map((p: any) => p.name).join(' & '), r.fl.nr, String(r.pts).replace('.', ','), r.diff].map(q).join(';')));
   return '﻿' + lines.join('\r\n');
+}
+
+// ---------- clubwedstrijd Heelsum – Anderstein ----------
+export const CLUBS = {
+  H: { name: 'Heelsum', logo: '/heelsum.png' },
+  A: { name: 'Anderstein', logo: '/anderstein.jpg' },
+} as const;
+export type Club = keyof typeof CLUBS;
+
+/**
+ * Clubscore. Afgeronde partijen tellen met hun uitslag; lopende partijen tellen als de stand nu is
+ * (voor = 1, all square = ½). Niet gestarte partijen en partijen tussen teams van dezelfde club tellen niet mee.
+ */
+export function clubScore(S: Scores) {
+  const proj = { H: 0, A: 0 }, done = { H: 0, A: 0 };
+  let total = 0, started = 0, finished = 0;
+  FLIGHTS.forEach(fl => fl.matches.forEach((m: any) => {
+    const ca: Club | undefined = m.teamA.club, cb: Club | undefined = m.teamB.club;
+    if (!ca || !cb || ca === cb) return;
+    total++;
+    const r = evalMatch(S, fl, m);
+    if (r.done) { finished++; done[ca] += r.pa!; done[cb] += r.pb!; }
+    if (r.done || r.contiguous > 0) {
+      started++;
+      const pa = r.done ? r.pa! : r.lead > 0 ? 1 : r.lead < 0 ? 0 : 0.5;
+      proj[ca] += pa; proj[cb] += 1 - pa;
+    }
+  }));
+  return { proj, done, total, started, finished };
 }
