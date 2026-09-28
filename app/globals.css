@@ -24,7 +24,7 @@ button{cursor:pointer}
 
 header.top{background:#027C55;color:#fff}
 header.top .wrap{display:flex;align-items:center;gap:14px;padding-top:14px;padding-bottom:14px}
-header.top img{width:48px;height:48px;border-radius:12px;flex:none;box-shadow:0 0 0 2px rgba(255,255,255,.25)}
+header.top img{width:48px;height:48px;border-radius:12px;background:#fff;object-fit:contain;flex:none;box-shadow:0 0 0 2px rgba(255,255,255,.25)}
 header.top h1{font-size:18px;font-weight:700;margin:0;line-height:1.2}
 header.top p{margin:2px 0 0;font-size:13px;opacity:.85}
 nav.tabs{display:flex;gap:4px;background:#015A3E;padding:4px;border-radius:12px;margin:0 16px}
