@@ -1,6 +1,6 @@
 'use client';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { EVENT_ID, type Bucket, type Scores } from './model';
+import { EVENT_ID, FROZEN, type Bucket, type Scores } from './model';
 
 type Write = { k: string; nr: number; pin: string; bucket: Bucket; id: string; h: number; v: number | null };
 const QKEY = `mp-queue-${EVENT_ID}`;
@@ -30,7 +30,8 @@ export function useScores(interval = 8000) {
   const writeSeq = useRef(0); const busy = useRef(false); const qRef = useRef<Write[]>([]);
   qRef.current = queue;
 
-  useEffect(() => { try { const q = JSON.parse(lsGet(QKEY) || '[]'); if (Array.isArray(q)) setQueue(q); } catch { /* ignore */ } }, []);
+  // na afloop worden nog niet verstuurde scores niet meer aangenomen: wachtrij leeg
+  useEffect(() => { if (FROZEN) return; try { const q = JSON.parse(lsGet(QKEY) || '[]'); if (Array.isArray(q)) setQueue(q); } catch { /* ignore */ } }, []);
   useEffect(() => { lsSet(QKEY, JSON.stringify(queue)); }, [queue]);
 
   const poll = useCallback(async () => {
@@ -44,7 +45,8 @@ export function useScores(interval = 8000) {
   }, []);
 
   useEffect(() => {
-    poll(); const t = setInterval(poll, interval);
+    poll(); if (FROZEN) return; // uitslag verandert niet meer
+    const t = setInterval(poll, interval);
     const vis = () => { if (document.visibilityState === 'visible') poll(); };
     document.addEventListener('visibilitychange', vis);
     return () => { clearInterval(t); document.removeEventListener('visibilitychange', vis); };
@@ -61,7 +63,7 @@ export function useScores(interval = 8000) {
         if (res.status >= 500) { setOffline(true); setMessage('Server tijdelijk niet bereikbaar – opnieuw proberen…'); break; }
         const j = await res.json().catch(() => ({}));
         if (res.ok) { writeSeq.current++; setServer(s => ({ ...s, ['f' + j.nr]: j.doc })); setOffline(false); setMessage('Opgeslagen'); }
-        else setMessage(j.error === 'bad_pin' ? 'Pincode klopt niet – score niet opgeslagen' : 'Score niet opgeslagen (ongeldig)');
+        else setMessage(j.error === 'frozen' ? 'De wedstrijd is afgelopen – scores kunnen niet meer worden gewijzigd' : j.error === 'bad_pin' ? 'Pincode klopt niet – score niet opgeslagen' : 'Score niet opgeslagen (ongeldig)');
         qRef.current = qRef.current.filter(x => x.k !== w.k);
         setQueue(q => q.filter(x => x.k !== w.k));
       }
@@ -76,6 +78,7 @@ export function useScores(interval = 8000) {
   }, [queue.length, flush]);
 
   const save = useCallback((w: Omit<Write, 'k'>) => {
+    if (FROZEN) return;
     const item = { ...w, k: Date.now() + '-' + Math.random().toString(36).slice(2) };
     qRef.current = [...qRef.current, item];
     setQueue(q => [...q, item]);

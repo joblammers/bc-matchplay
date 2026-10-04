@@ -3,6 +3,8 @@ import RAW from './data.json';
 // Wedstrijdmodel: overgenomen uit de oorspronkelijke pagina (slagen, partijen, stand).
 export const EVENT_ID = '2026-09-29';
 export const PARAM = { singles: 1.0, team: 0.5, nine: 0.5 };
+/** Wedstrijd is gespeeld: scores staan vast, invoer en wissen zijn uitgeschakeld. */
+export const FROZEN = true;
 
 export type Scores = Record<string, { g?: Record<string, Record<string, number>>; t?: Record<string, Record<string, number>> }>;
 export type Bucket = 'g' | 't';
@@ -12,7 +14,6 @@ export const HOLE: Record<number, { h: number; loop: string; par: number; si: nu
 DATA.holes.forEach((h: any) => (HOLE[h.h] = h));
 
 const round = (x: number) => Math.floor(x + 0.5 + 1e-9);
-export const first = (n: string) => n.split(' ')[0];
 export const holeName = (h: number) => (h <= 9 ? 'Helsum ' + h : 'Sandr ' + (h - 9));
 
 function playOrder(fl: any) { const o: number[] = []; for (let k = 0; k < 18; k++) o.push(((fl.hole - 1 + k) % 18) + 1); return o; }
@@ -26,14 +27,14 @@ const LETTER = 'ABC';
 DATA.flights.forEach((fl: any) => {
   fl.order = playOrder(fl);
   fl.front = fl.order.slice(0, 9); fl.back = fl.order.slice(9);
-  fl.teams.forEach((t: any, i: number) => { t.letter = t.club || LETTER[i]; t.label = t.players.map((p: any) => first(p.name)).join(' & '); t.sum = t.players.reduce((a: number, p: any) => a + p.phcp, 0); });
+  fl.teams.forEach((t: any, i: number) => { t.letter = t.club || LETTER[i]; t.label = t.players.map((p: any) => p.name).join(' & '); t.sum = t.players.reduce((a: number, p: any) => a + p.phcp, 0); });
   fl.matches = [];
   pairs(fl.teams.length).forEach(([a, b]) => {
     const A = fl.teams[a], B = fl.teams[b];
     [0, 1].forEach(pi => {
       const pa = A.players[pi], pb = B.players[pi];
       const n = round(Math.abs(pa.phcp - pb.phcp) * PARAM.singles * PARAM.nine);
-      fl.matches.push({ kind: 'single', pos: pi + 1, a: { id: pa.id, label: first(pa.name), full: pa.name, team: A }, b: { id: pb.id, label: first(pb.name), full: pb.name, team: B },
+      fl.matches.push({ kind: 'single', pos: pi + 1, a: { id: pa.id, label: pa.name, full: pa.name, team: A }, b: { id: pb.id, label: pb.name, full: pb.name, team: B },
         n, recv: n === 0 ? null : (pa.phcp > pb.phcp ? 'a' : 'b'), holes: fl.front, map: strokeMap(fl.front, n), teamA: A, teamB: B });
     });
     const d = Math.abs(A.sum * PARAM.team - B.sum * PARAM.team);
@@ -56,10 +57,11 @@ export function val(S: Scores, fl: any, bucket: Bucket, id: string, h: number): 
   return v === undefined || v === null ? null : v;
 }
 
-export function evalMatch(S: Scores, fl: any, m: any) {
+/** Stand van een partij; met `upto` alleen over de eerste `upto` holes van die partij. */
+export function evalMatch(S: Scores, fl: any, m: any, upto = 9) {
   const bucket: Bucket = m.kind === 'single' ? 'g' : 't';
   let lead = 0, played = 0, decided = false, endAt: number | null = null; const per: number[] = [];
-  for (let i = 0; i < 9; i++) {
+  for (let i = 0; i < Math.min(9, upto); i++) {
     const h = m.holes[i];
     const ga = val(S, fl, bucket, m.a.id, h), gb = val(S, fl, bucket, m.b.id, h);
     if (ga === null || gb === null) break;
@@ -80,7 +82,7 @@ export function evalMatch(S: Scores, fl: any, m: any) {
   else { text = lead === 0 ? `All square na ${contiguous}` : `${leader} ${Math.abs(lead)} up na ${contiguous}${Math.abs(lead) === rem ? ' (dormie)' : ''}`; cls = lead > 0 ? 'lead-a' : lead < 0 ? 'lead-b' : ''; }
   const pa = done ? (lead > 0 ? 1 : lead === 0 ? 0.5 : 0) : null;
   const holesWonA = per.filter(r => r === 1).length, holesWonB = per.filter(r => r === -1).length;
-  return { lead, contiguous, done, text, cls, pa, pb: done ? 1 - pa! : null, diff: holesWonA - holesWonB };
+  return { lead, contiguous, done, text, cls, pa, pb: done ? 1 - pa! : null, diff: holesWonA - holesWonB, per, endAt };
 }
 
 export function holeEntries(fl: any, idx: number) {
@@ -146,14 +148,14 @@ export type Club = keyof typeof CLUBS;
  * Clubscore. Afgeronde partijen tellen met hun uitslag; lopende partijen tellen als de stand nu is
  * (voor = 1, all square = ½). Niet gestarte partijen en partijen tussen teams van dezelfde club tellen niet mee.
  */
-export function clubScore(S: Scores) {
+export function clubScore(S: Scores, step = 18) {
   const proj = { H: 0, A: 0 }, done = { H: 0, A: 0 };
   let total = 0, started = 0, finished = 0;
   FLIGHTS.forEach(fl => fl.matches.forEach((m: any) => {
     const ca: Club | undefined = m.teamA.club, cb: Club | undefined = m.teamB.club;
     if (!ca || !cb || ca === cb) return;
     total++;
-    const r = evalMatch(S, fl, m);
+    const r = evalMatch(S, fl, m, m.kind === 'single' ? step : step - 9);
     if (r.done) { finished++; done[ca] += r.pa!; done[cb] += r.pb!; }
     if (r.done || r.contiguous > 0) {
       started++;
@@ -162,4 +164,24 @@ export function clubScore(S: Scores) {
     }
   }));
   return { proj, done, total, started, finished };
+}
+
+/** Clubscore na elke gespeelde hole (1..18 in speelvolgorde van de flight; shotgun, dus overal tegelijk). */
+export function clubProgress(S: Scores) {
+  return Array.from({ length: 19 }, (_, step) => ({ step, ...clubScore(S, step) }));
+}
+
+/** Per baanhole: gemiddelde bruto en wie de hole won in partijen tussen de clubs. */
+export function holeStats(S: Scores) {
+  const out = Object.values(HOLE).map(H => ({ ...H, sum: 0, n: 0, H: 0, A: 0, half: 0 }));
+  FLIGHTS.forEach(fl => fl.matches.forEach((m: any) => {
+    const bucket: Bucket = m.kind === 'single' ? 'g' : 't';
+    const r = evalMatch(S, fl, m);
+    r.per.forEach((x, i) => {
+      const o = out[m.holes[i] - 1];
+      [m.a.id, m.b.id].forEach(id => { const v = val(S, fl, bucket, id, m.holes[i]); if (v !== null && v > 0) { o.sum += v; o.n++; } });
+      if (x === 0) o.half++; else { const c: Club | undefined = (x > 0 ? m.teamA : m.teamB).club; if (c) o[c]++; }
+    });
+  }));
+  return out.map(o => ({ ...o, avg: o.n ? o.sum / o.n : null }));
 }

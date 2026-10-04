@@ -1,5 +1,5 @@
 'use client';
-import { CLUBS, clubScore, fmtPts, type Scores } from '@/lib/model';
+import { CLUBS, FROZEN, clubScore, fmtPts, type Scores } from '@/lib/model';
 
 export default function ClubBar({ scores }: { scores: Scores }) {
   const c = clubScore(scores);
@@ -11,7 +11,7 @@ export default function ClubBar({ scores }: { scores: Scores }) {
         <div className={`cb-club${lead === 'H' ? ' lead' : ''}`}><img src={CLUBS.H.logo} alt="" /><span>{CLUBS.H.name}</span></div>
         <div className="cb-score">
           <b>{f(c.proj.H)}<i>–</i>{f(c.proj.A)}</b>
-          <small>{c.started ? `verwacht · afgerond ${f(c.done.H)}–${f(c.done.A)} · ${c.finished}/${c.total} klaar` : `nog geen partijen gestart · ${c.total} partijen`}</small>
+          <small>{FROZEN && c.finished === c.total ? `einduitslag · ${c.total} partijen` : c.started ? `verwacht · afgerond ${f(c.done.H)}–${f(c.done.A)} · ${c.finished}/${c.total} klaar` : `nog geen partijen gestart · ${c.total} partijen`}</small>
         </div>
         <div className={`cb-club${lead === 'A' ? ' lead' : ''}`}><img src={CLUBS.A.logo} alt="" /><span>{CLUBS.A.name}</span></div>
       </div>

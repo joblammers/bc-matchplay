@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { flightByNr, validIds } from '@/lib/model';
+import { FROZEN, flightByNr, validIds } from '@/lib/model';
 import { pinOk, readAll, readFlight, writeScore } from '@/lib/server';
 
 export const dynamic = 'force-dynamic';
@@ -10,6 +10,7 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
+  if (FROZEN) return NextResponse.json({ error: 'frozen' }, { status: 423 });
   let b: any; try { b = await req.json(); } catch { return NextResponse.json({ error: 'bad_json' }, { status: 400 }); }
   const nr = Number(b?.nr), fl = flightByNr(nr);
   if (!fl) return NextResponse.json({ error: 'unknown_flight' }, { status: 400 });

@@ -1,8 +1,9 @@
 import { notFound } from 'next/navigation';
 import Header from '@/components/Header';
+import LiveStand from '@/components/LiveStand';
 import PinForm from '@/components/PinForm';
 import Scorer from '@/components/Scorer';
-import { flightByNr } from '@/lib/model';
+import { FROZEN, flightByNr } from '@/lib/model';
 import { pinOk } from '@/lib/server';
 
 export const dynamic = 'force-dynamic';
@@ -10,6 +11,7 @@ export const dynamic = 'force-dynamic';
 export default async function FlightPage({ params, searchParams }: { params: Promise<{ nr: string }>; searchParams: Promise<{ pin?: string }> }) {
   const nr = Number((await params).nr); const { pin } = await searchParams;
   const fl = flightByNr(nr); if (!fl) notFound();
+  if (FROZEN) return (<><Header sub="Einduitslag – 29 september 2026" /><LiveStand /></>);
   if (!pinOk(nr, pin)) return (
     <>
       <Header sub={`Flight ${nr} – start ${fl.start}`} />

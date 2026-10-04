@@ -1,7 +1,7 @@
 import { headers } from 'next/headers';
 import Header from '@/components/Header';
 import ResetButton from '@/components/ResetButton';
-import { FLIGHTS } from '@/lib/model';
+import { FLIGHTS, FROZEN } from '@/lib/model';
 import { adminOk, pinFor, usingRedis } from '@/lib/server';
 
 export const dynamic = 'force-dynamic';
@@ -16,6 +16,7 @@ export default async function Admin({ searchParams }: { searchParams: Promise<{ 
     <>
       <Header sub="Beheer – links en pincodes" />
       <main className="wrap">
+        {FROZEN && <div className="banner">De wedstrijd is bevroren (FROZEN in lib/model.ts): score-invoer en wissen zijn uitgeschakeld.</div>}
         {!usingRedis && <div className="banner">Let op: er is geen Redis-database gekoppeld; scores staan nu alleen in het geheugen van de server.</div>}
         <h2>Links per flight</h2>
         <div className="tablewrap"><table>
@@ -27,7 +28,7 @@ export default async function Admin({ searchParams }: { searchParams: Promise<{ 
           })}</tbody>
         </table></div>
         <p className="note">Stand (alleen lezen): <a href={`${base}/stand`} target="_blank">{base}/stand</a></p>
-        <div className="tools"><a className="btn" href={`/admin/qr?key=${encodeURIComponent(key!)}`}>QR-codes afdrukken (A4)</a><ResetButton k={key!} /></div>
+        <div className="tools"><a className="btn" href={`/admin/qr?key=${encodeURIComponent(key!)}`}>QR-codes afdrukken (A4)</a>{!FROZEN && <ResetButton k={key!} />}</div>
       </main>
     </>
   );
